@@ -11793,6 +11793,64 @@ it marks the next defun after the ones already marked."
     (unless (js2-ast-root-p fn)
       (narrow-to-region beg (+ beg (js2-node-len fn))))))
 
+(defun js2-match-tag (&optional tag)
+  "在 imenu 中匹配标识符：
+1、当参数 tag 为空值时(nil)，返回所有的imenu条目。
+2、当参数 tag 为其他字串时，返回其特指的imenu条目。"
+  
+  (let ((_tag "*all*")
+	(func
+	 '(lambda (imenu)
+	    (let* ((m (car imenu))
+		   (k (and (listp m) (car m)))
+		   (r (and (listp m) (cdr m))))
+	      (cond
+	       ((and (or (equal _tag "*all*") (equal _tag k)) (not (listp r))) `(,m))
+	       ((listp r) (mapcon func r))
+	       (t nil)))))
+	cur all i cache)
+    
+    (or imenu--index-alist (imenu--make-index-alist))
+    (or (and (local-variable-p 'js2-tag-cache) js2-tag-cache)
+	(set (make-local-variable 'js2-tag-cache)
+	     (cons '(0 . _tag) (mapcon func imenu--index-alist))))
+
+    (setq cur (car js2-tag-cache)
+	  all (cdr js2-tag-cache)
+	  i (1+ (car cur))
+	  _tag (if (numberp tag) (cdr cur) tag)
+	  cache (if tag (mapcon func all) all))
+    
+    (cond
+     ((not tag) all)
+
+     ((numberp tag)
+      (if (= i (length cache)) (set 'i 0))
+      (setcar cur i)
+      (nth i cache))
+     
+     (t (setcar cur 0) (setcdr cur tag) (nth 0 cache)))))
+
+(defun js2-goto-tag (&optional tag)
+  "找到标识符的定义位置：
+1、在交互模式 (interactive ...) 时，如果使用\\[universal-argument]作为
+  参数，则无论参数值为几何将根据`[(car js2-tag-cache): index . tag)]'
+  进行步进；否则将从输入控制处(minibuffer) 读取要找寻的标识符。
+
+2、非交互模式时，如果参数：tag 为空值nil，则自动获取当前光标所在位置的标识符
+  `(thing-at-point 'sexp)' "
+  
+  (interactive
+   (if current-prefix-arg
+       (if (consp current-prefix-arg)
+	   current-prefix-arg
+	 (list (prefix-numeric-value current-prefix-arg)))
+     (let ((at (thing-at-point 'sexp t)))
+       (list (completing-read "找到位置：" (js2-match-tag) nil nil at)))))
+  (when (and (equal major-mode 'js2-mode) (not (equal tag "")))
+    (or tag (set tag (thing-at-point 'sexp t)))
+    (imenu--menubar-select (js2-match-tag tag))))
+
 (provide 'js2-mode)
 
 ;;; js2-mode.el ends here
