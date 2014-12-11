@@ -1148,6 +1148,7 @@ information."
     (define-key map (kbd "C-c C-t") #'js2-mode-toggle-hide-comments)
     (define-key map (kbd "C-c C-o") #'js2-mode-toggle-element)
     (define-key map (kbd "C-c C-w") #'js2-mode-toggle-warnings-and-errors)
+    (define-key map (kbd "C-c C-g") #'js2-goto-tag)
     (define-key map [down-mouse-3] #'js2-down-mouse-3)
     (when js2-bounce-indent-p
       (define-key map (kbd "<backtab>") #'js2-indent-bounce-backwards))
