@@ -11847,7 +11847,7 @@ it marks the next defun after the ones already marked."
 	   current-prefix-arg
 	 (list (prefix-numeric-value current-prefix-arg)))
      (let ((at (thing-at-point 'sexp t)))
-       (list (completing-read "找到位置：" (js2-match-tag) nil nil at)))))
+       (list (completing-read "找到位置：" (js2-match-tag) nil t at)))))
   (when (and (equal major-mode 'js2-mode) (not (equal tag "")))
     (or tag (set tag (thing-at-point 'sexp t)))
     (imenu--menubar-select (js2-match-tag tag))))
