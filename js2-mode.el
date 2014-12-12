@@ -11800,15 +11800,26 @@ it marks the next defun after the ones already marked."
 2、当参数 tag 为其他字串时，返回其特指的imenu条目。"
   
   (let ((_tag "*all*")
+	(_branch '())
 	(func
 	 '(lambda (imenu)
 	    (let* ((m (car imenu))
 		   (k (and (listp m) (car m)))
-		   (r (and (listp m) (cdr m))))
+		   (r (and (listp m) (cdr m)))
+		   (b (car _branch)))
+
+	      (if (= (length imenu) 1) (set '_branch (cdr _branch)))
+
 	      (cond
-	       ((and (or (equal _tag "*all*") (equal _tag k)) (not (listp r))) `(,m))
-	       ((listp r) (mapcon func r))
+	       ((and (or (equal _tag "*all*") (equal _tag k)) (nlistp r))
+		(if (string-match "^<.*>$" k)
+		    (list (cons (format "@%s" b) r))
+		  (list m)))
+
+	       ((listp r) (push k _branch) (mapcon func r))
+	       
 	       (t nil)))))
+	
 	cur all i cache)
     
     (or imenu--index-alist (imenu--make-index-alist))
