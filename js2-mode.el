@@ -10741,7 +10741,7 @@ Selecting an error will jump it to the corresponding source-buffer error.
         (message msg))))))
 
 ;;;###autoload
-(define-derived-mode js2-mode prog-mode "Javascript-IDE"
+(define-derived-mode js2-mode prog-mode "JS2"
   ;; FIXME: Should derive from js-mode.
   "Major mode for editing JavaScript code."
   ;; Used by comment-region; don't change it.
